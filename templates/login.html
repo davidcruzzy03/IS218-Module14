@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>Login | Module 13</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/css/styles.css"
+    >
+</head>
+
+<body>
+    <main class="auth-container">
+        <section class="auth-card">
+            <h1>Login</h1>
+
+            <p class="subtitle">
+                Enter your credentials to continue.
+            </p>
+
+            <form id="login-form" novalidate>
+                <div class="form-group">
+                    <label for="username">Username</label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        minlength="3"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        minlength="8"
+                        required
+                    >
+                </div>
+
+                <button type="submit" id="login-button">
+                    Login
+                </button>
+            </form>
+
+            <div
+                id="login-message"
+                class="message"
+                role="alert"
+                aria-live="polite"
+            ></div>
+
+            <p class="auth-link">
+                Do not have an account?
+                <a href="/register">Register</a>
+            </p>
+
+            <p class="auth-link">
+                <a href="/">Return to calculator</a>
+            </p>
+        </section>
+    </main>
+
+    <script src="/static/js/login.js"></script>
+</body>
+</html>
