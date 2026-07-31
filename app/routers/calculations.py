@@ -14,6 +14,7 @@ from app.schemas.calculation import (
     CalculationRead,
     CalculationUpdate,
 )
+from app.security import get_current_user
 from app.services.calculation_factory import CalculationFactory
 
 
@@ -23,16 +24,44 @@ router = APIRouter(
 )
 
 
+def get_owned_calculation(
+    calculation_id: UUID,
+    current_user: User,
+    db: Session,
+) -> Calculation:
+    """Return a calculation only when it belongs to the current user."""
+
+    statement = select(Calculation).where(
+        Calculation.id == calculation_id,
+        Calculation.user_id == current_user.id,
+    )
+
+    calculation = db.scalar(statement)
+
+    if calculation is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Calculation not found.",
+        )
+
+    return calculation
+
+
 @router.get(
     "",
     response_model=list[CalculationRead],
 )
 def browse_calculations(
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> list[Calculation]:
-    """Return all calculations."""
+    """Return calculations belonging to the logged-in user."""
 
-    statement = select(Calculation).order_by(Calculation.id)
+    statement = (
+        select(Calculation)
+        .where(Calculation.user_id == current_user.id)
+        .order_by(Calculation.id)
+    )
 
     return list(db.scalars(statement).all())
 
@@ -44,18 +73,15 @@ def browse_calculations(
 def read_calculation(
     calculation_id: UUID,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> Calculation:
-    """Return one calculation by ID."""
+    """Return one calculation belonging to the logged-in user."""
 
-    calculation = db.get(Calculation, calculation_id)
-
-    if calculation is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Calculation not found.",
-        )
-
-    return calculation
+    return get_owned_calculation(
+        calculation_id=calculation_id,
+        current_user=current_user,
+        db=db,
+    )
 
 
 @router.post(
@@ -66,16 +92,9 @@ def read_calculation(
 def add_calculation(
     calculation_data: CalculationCreate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> Calculation:
-    """Create and save a new calculation."""
-
-    user = db.query(User).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A user is required before creating a calculation.",
-        )
+    """Create a calculation for the logged-in user."""
 
     try:
         result = CalculationFactory.calculate(
@@ -90,7 +109,7 @@ def add_calculation(
         ) from error
 
     calculation = Calculation(
-        user_id=user.id,
+        user_id=current_user.id,
         a=calculation_data.a,
         b=calculation_data.b,
         type=calculation_data.type.value,
@@ -112,16 +131,15 @@ def edit_calculation(
     calculation_id: UUID,
     calculation_data: CalculationUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> Calculation:
-    """Update an existing calculation."""
+    """Update a calculation belonging to the logged-in user."""
 
-    calculation = db.get(Calculation, calculation_id)
-
-    if calculation is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Calculation not found.",
-        )
+    calculation = get_owned_calculation(
+        calculation_id=calculation_id,
+        current_user=current_user,
+        db=db,
+    )
 
     try:
         result = CalculationFactory.calculate(
@@ -153,16 +171,15 @@ def edit_calculation(
 def delete_calculation(
     calculation_id: UUID,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> Response:
-    """Delete a calculation permanently."""
+    """Delete a calculation belonging to the logged-in user."""
 
-    calculation = db.get(Calculation, calculation_id)
-
-    if calculation is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Calculation not found.",
-        )
+    calculation = get_owned_calculation(
+        calculation_id=calculation_id,
+        current_user=current_user,
+        db=db,
+    )
 
     db.delete(calculation)
     db.commit()

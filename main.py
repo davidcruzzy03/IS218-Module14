@@ -1,9 +1,9 @@
 """Main FastAPI application entry point."""
 
 import logging
+from contextlib import asynccontextmanager
 
 import uvicorn
-from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -32,12 +32,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Module 13 JWT Authentication Application",
+    title="Module 14 Calculation BREAD Application",
     description=(
-        "FastAPI application providing JWT user registration, login, "
-        "frontend authentication pages, and calculation operations."
+        "FastAPI application providing JWT authentication and "
+        "user-specific Browse, Read, Edit, Add, and Delete "
+        "operations for calculations."
     ),
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 
