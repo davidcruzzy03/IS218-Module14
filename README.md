@@ -1,60 +1,101 @@
-# IS218 Module 13 - JWT Authentication FastAPI Calculator
+# IS218 Module 14 - FastAPI Calculator with JWT Authentication and BREAD Operations
 
 ## Overview
 
-This project is the Module 13 assignment for IS218. It extends the FastAPI Calculator application by implementing secure user authentication using JSON Web Tokens (JWT), frontend login and registration pages, and automated end-to-end testing with Playwright.
+This project is the Module 14 assignment for IS218. It extends the Module 13 JWT Authentication project by implementing complete BREAD (Browse, Read, Edit, Add, Delete) functionality for user calculations.
 
-The application allows users to register, log in, perform calculator operations, and securely authenticate using JWT tokens.
+Users can securely register and log in using JWT authentication, then create, browse, edit, view, and delete their own calculations through both the API and frontend.
 
 ---
 
-## Features
+# Features
 
-### Authentication
+## Authentication
 
-- User registration
-- User login
+- User Registration
+- User Login
 - Password hashing using bcrypt
-- JWT access token generation
+- JWT Access Token generation
 - JWT token validation
-- Duplicate email and username validation
-- Invalid credential handling
+- Duplicate username/email validation
+- Protected calculation endpoints
 
-### Calculator
+---
 
-- Addition
-- Subtraction
-- Multiplication
-- Division
-- Division-by-zero validation
-- Calculation history stored in PostgreSQL
+## Calculation BREAD Operations
 
-### Frontend
+### Browse
+
+- View all calculations belonging to the authenticated user
+
+### Read
+
+- View a single calculation by ID
+
+### Add
+
+- Create new calculations
+- Supported operations:
+  - Add
+  - Subtract
+  - Multiply
+  - Divide
+
+### Edit
+
+- Update operands or operation type
+- Automatically recalculates the result
+
+### Delete
+
+- Delete calculations belonging to the logged-in user
+
+---
+
+## Frontend
 
 - Home page
-- Register page
+- Registration page
 - Login page
-- Client-side form validation
-- Stores JWT token in browser Local Storage after successful login
+- Calculator page
+- Client-side validation
+- JWT stored in Local Storage
+- Authenticated calculation management
 
-### Testing
+---
+
+## Security
+
+- Password hashing using bcrypt
+- JWT authentication
+- User ownership verification
+- Protected calculation routes
+- Invalid login handling
+- Duplicate account protection
+
+---
+
+## Testing
 
 - Unit Tests
 - Integration Tests
 - Playwright End-to-End Tests
-- Pytest Coverage Report
-
-### DevOps
-
-- Docker Compose
-- PostgreSQL
-- pgAdmin
-- GitHub Actions CI
-- Docker Hub Integration
+- Coverage Reports
 
 ---
 
-## Technologies Used
+## DevOps
+
+- Docker
+- Docker Compose
+- PostgreSQL
+- pgAdmin
+- GitHub Actions
+- Docker Hub Deployment
+
+---
+
+# Technologies Used
 
 - Python 3.12
 - FastAPI
@@ -63,45 +104,42 @@ The application allows users to register, log in, perform calculator operations,
 - Pydantic
 - Passlib (bcrypt)
 - python-jose (JWT)
-- Jinja2
 - HTML
 - CSS
 - JavaScript
 - Docker
 - Docker Compose
-- Pytest
 - Playwright
+- Pytest
 - GitHub Actions
 
 ---
 
-## Project Structure
+# Project Structure
 
 ```
-IS218-Module13/
-│
+IS218-Module14/
+
 ├── app/
 │   ├── models/
 │   ├── routers/
 │   ├── schemas/
 │   ├── services/
+│   ├── operations/
 │   ├── security.py
-│   ├── database.py
-│   └── operations/
+│   └── database.py
 │
 ├── static/
-│   ├── css/
-│   └── js/
 │
 ├── templates/
-│   ├── index.html
-│   ├── register.html
-│   └── login.html
 │
 ├── tests/
 │   ├── unit/
 │   ├── integration/
 │   └── e2e/
+│
+├── .github/
+│   └── workflows/
 │
 ├── Dockerfile
 ├── docker-compose.yml
@@ -111,18 +149,18 @@ IS218-Module13/
 
 ---
 
-## Installation
+# Installation
 
 Clone the repository
 
 ```bash
-git clone https://github.com/davidcruzzy03/IS218-Module13.git
+git clone git@github.com:davidcruzzy03/IS218-Module14.git
 ```
 
-Navigate into the project
+Enter the project
 
 ```bash
-cd IS218-Module13
+cd IS218-Module14
 ```
 
 Create a virtual environment
@@ -133,7 +171,7 @@ python3 -m venv .venv
 
 Activate it
 
-Linux / macOS
+Linux/macOS
 
 ```bash
 source .venv/bin/activate
@@ -153,32 +191,33 @@ pip install -r requirements.txt
 
 ---
 
-## Environment Variables
+# Environment Variables
 
 Create a `.env` file.
 
-Example:
-
 ```env
 DATABASE_URL=postgresql://postgres:postgres@db:5432/calculator_db
+
 TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/calculator_test_db
 
 SECRET_KEY=your-secret-key
+
 ALGORITHM=HS256
+
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
 ---
 
-## Running with Docker
+# Running with Docker
 
-Build the project
+Build the application
 
 ```bash
 docker compose up -d --build
 ```
 
-Stop containers
+Stop the application
 
 ```bash
 docker compose down
@@ -186,27 +225,27 @@ docker compose down
 
 ---
 
-## Running the Application
+# Running the Application
 
-Start the FastAPI server
+Run locally
 
 ```bash
 uvicorn main:app --reload
 ```
 
-Open:
+Application
 
 ```
 http://localhost:8000
 ```
 
-Registration page
+Register
 
 ```
 http://localhost:8000/register
 ```
 
-Login page
+Login
 
 ```
 http://localhost:8000/login
@@ -220,33 +259,33 @@ http://localhost:8000/docs
 
 ---
 
-## Running Tests
+# Running Tests
 
 Run all tests
 
 ```bash
-pytest -v
+python -m pytest -v
 ```
 
 Run unit tests
 
 ```bash
-pytest tests/unit
+python -m pytest tests/unit -v
 ```
 
 Run integration tests
 
 ```bash
-pytest tests/integration
+python -m pytest tests/integration -v
 ```
 
 Run Playwright tests
 
 ```bash
-pytest tests/e2e
+python -m pytest tests/e2e -v
 ```
 
-Generate coverage report
+Generate coverage
 
 ```bash
 pytest --cov=app --cov=main
@@ -255,75 +294,103 @@ pytest --cov=app --cov=main
 Current Results
 
 ```
-68 tests passed
-93% coverage
+68+ Tests Passing
+
+90%+ Coverage
 ```
 
 ---
 
-## Authentication Flow
+# Authentication Flow
 
-1. User registers with username, email, and password.
-2. Password is securely hashed using bcrypt.
-3. User logs in with valid credentials.
-4. A JWT access token is generated.
-5. The frontend stores the token in Local Storage.
-6. Future authenticated requests can use the JWT token.
+1. Register a new account
+2. Password is securely hashed
+3. Login using username and password
+4. JWT access token is created
+5. JWT stored in browser Local Storage
+6. Authenticated requests include the token
+7. Users may only access their own calculations
 
 ---
 
-## API Endpoints
+# API Endpoints
 
-### User Routes
+## User Routes
 
 | Method | Endpoint | Description |
 |---------|----------|-------------|
-| POST | `/users/register` | Register a new user |
-| POST | `/users/login` | Authenticate user |
-
-### Calculator Routes
-
-| Method | Endpoint |
-|---------|----------|
-| GET | `/calculations` |
-| GET | `/calculations/{id}` |
-| POST | `/calculations` |
-| PUT | `/calculations/{id}` |
-| DELETE | `/calculations/{id}` |
+| POST | /users/register | Register a user |
+| POST | /users/login | Login user |
 
 ---
 
-## Continuous Integration
+## Calculation Routes
 
-This project uses GitHub Actions to automatically:
-
-- Run unit tests
-- Run integration tests
-- Run Playwright tests
-- Generate coverage reports
-- Build the Docker image
-- Push the image to Docker Hub
-
----
-
-## Learning Outcomes
-
-Through this module I learned how to:
-
-- Implement JWT authentication
-- Secure user passwords with bcrypt hashing
-- Build login and registration pages
-- Validate user input on both the client and server
-- Write end-to-end tests using Playwright
-- Integrate automated testing into a CI/CD workflow
-- Deploy containerized applications using Docker
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | /calculations | Browse calculations |
+| GET | /calculations/{id} | Read one calculation |
+| POST | /calculations | Add calculation |
+| PUT | /calculations/{id} | Edit calculation |
+| DELETE | /calculations/{id} | Delete calculation |
 
 ---
 
-## Author
+# Continuous Integration
+
+GitHub Actions automatically:
+
+- Runs Unit Tests
+- Runs Integration Tests
+- Runs Playwright Tests
+- Generates Coverage Reports
+- Builds Docker Image
+- Runs Security Scan
+- Pushes Docker Image to Docker Hub
+
+---
+
+# Docker Hub
+
+Docker Hub Repository
+
+```
+https://hub.docker.com/r/davidcruzzy03/is218-module14
+```
+
+---
+
+# GitHub Repository
+
+```
+https://github.com/davidcruzzy03/IS218-Module14
+```
+
+---
+
+# Learning Outcomes
+
+This module expanded my understanding of:
+
+- JWT Authentication
+- User Authorization
+- Secure Password Storage
+- RESTful API Design
+- BREAD Operations
+- User Ownership Verification
+- Playwright End-to-End Testing
+- Docker Deployment
+- GitHub Actions CI/CD
+- Secure Full-Stack Development
+
+---
+
+# Author
 
 **David Cruz**
 
 IS218 – Web Systems Development
 
-GitHub: https://github.com/davidcruzzy03
+GitHub
+
+https://github.com/davidcruzzy03
