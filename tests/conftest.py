@@ -3,6 +3,8 @@
 import os
 import uuid
 
+os.environ["TESTING"] = "true"
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -11,7 +13,7 @@ from sqlalchemy.orm import sessionmaker
 from app.database import Base, get_db
 from app.models.calculation import Calculation  # noqa: F401
 from app.models.user import User
-from app.security import hash_password
+from app.security import get_current_user, hash_password
 from main import app
 
 
@@ -33,6 +35,7 @@ def engine():
 
     Base.metadata.drop_all(bind=test_engine)
     test_engine.dispose()
+
 
 @pytest.fixture()
 def db_session(engine):
@@ -56,6 +59,7 @@ def db_session(engine):
         transaction.rollback()
         connection.close()
 
+
 @pytest.fixture()
 def test_user(db_session):
     """Create a database user for calculation tests."""
@@ -77,15 +81,18 @@ def test_user(db_session):
 
 @pytest.fixture()
 def client(db_session, test_user):
-    """Provide a FastAPI test client using the test database session."""
+    """Provide an authenticated FastAPI test client."""
 
     def override_get_db():
-        try:
-            yield db_session
-        finally:
-            pass
+        """Use the current test database session."""
+        yield db_session
+
+    def override_get_current_user():
+        """Treat the fixture user as authenticated."""
+        return test_user
 
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_current_user] = override_get_current_user
 
     with TestClient(app) as test_client:
         yield test_client

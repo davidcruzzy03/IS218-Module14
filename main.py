@@ -1,5 +1,6 @@
 """Main FastAPI application entry point."""
 
+import os
 import logging
 from contextlib import asynccontextmanager
 
@@ -25,9 +26,11 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Create missing database tables when the application starts."""
+    """Run application startup and shutdown tasks."""
 
-    Base.metadata.create_all(bind=engine)
+    if os.getenv("TESTING", "false").lower() != "true":
+        Base.metadata.create_all(bind=engine)
+
     yield
 
 
