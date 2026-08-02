@@ -3,6 +3,7 @@
 import os
 import uuid
 
+# Must be set before importing the FastAPI application.
 os.environ["TESTING"] = "true"
 
 import pytest
@@ -84,15 +85,15 @@ def client(db_session, test_user):
     """Provide an authenticated FastAPI test client."""
 
     def override_get_db():
-        """Use the current test database session."""
         yield db_session
 
     def override_get_current_user():
-        """Treat the fixture user as authenticated."""
         return test_user
 
     app.dependency_overrides[get_db] = override_get_db
-    app.dependency_overrides[get_current_user] = override_get_current_user
+    app.dependency_overrides[get_current_user] = (
+        override_get_current_user
+    )
 
     with TestClient(app) as test_client:
         yield test_client
