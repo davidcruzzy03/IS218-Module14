@@ -18,6 +18,7 @@ from app.models.user import User  # noqa: F401
 from app.operations import add, divide, multiply, subtract
 from app.routers.calculations import router as calculations_router
 from app.routers.users import router as users_router
+from app.routers import reports
 
 
 logging.basicConfig(level=logging.INFO)
@@ -57,6 +58,7 @@ app.mount(
 # Register application routers.
 app.include_router(users_router)
 app.include_router(calculations_router)
+app.include_router(reports.router)
 
 
 templates = Jinja2Templates(directory="templates")
