@@ -49,6 +49,13 @@
             gap: 12px;
         }
 
+        .user-controls a {
+            display: inline-block;
+            padding: 10px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
         form {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -147,13 +154,23 @@
         <header class="header">
             <div>
                 <h1>Calculation Manager</h1>
+
                 <p>
                     Browse, read, edit, add, and delete calculations.
                 </p>
             </div>
 
             <div class="user-controls">
+
                 <span id="current-user"></span>
+
+                <a
+                    href="/dashboard"
+                    id="reports-link"
+                    class="primary-button"
+                >
+                    📊 View Reports
+                </a>
 
                 <button
                     id="logout-button"
@@ -162,6 +179,7 @@
                 >
                     Log Out
                 </button>
+
             </div>
         </header>
 

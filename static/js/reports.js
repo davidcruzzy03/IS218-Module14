@@ -229,5 +229,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    const logoutButton = document.querySelector(
+        "#logout-button"
+    );
+
+    logoutButton.addEventListener("click", () => {
+        localStorage.removeItem("access_token");
+        window.location.href = "/login";
+    });
+
     initializeReportPage();
 });
