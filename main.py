@@ -1,13 +1,13 @@
 """Main FastAPI application entry point."""
 
-import os
 import logging
+import os
 from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
@@ -16,6 +16,7 @@ from app.database import Base, engine
 from app.models.calculation import Calculation  # noqa: F401
 from app.models.user import User  # noqa: F401
 from app.operations import add, divide, multiply, subtract
+from app.routers import reports
 from app.routers.calculations import router as calculations_router
 from app.routers.users import router as users_router
 
@@ -46,20 +47,19 @@ app = FastAPI(
 )
 
 
-# Make files inside the static directory available to the browser.
 app.mount(
     "/static",
     StaticFiles(directory="static"),
     name="static",
 )
 
+templates = Jinja2Templates(directory="templates")
 
-# Register application routers.
+
+# Register API routers.
 app.include_router(users_router)
 app.include_router(calculations_router)
-
-
-templates = Jinja2Templates(directory="templates")
+app.include_router(reports.router)
 
 
 class OperationRequest(BaseModel):
@@ -69,6 +69,7 @@ class OperationRequest(BaseModel):
         ...,
         description="The first number",
     )
+
     b: float = Field(
         ...,
         description="The second number",
@@ -117,7 +118,7 @@ async def validation_exception_handler(
     request: Request,
     exc: RequestValidationError,
 ) -> JSONResponse:
-    """Return HTTP 400 specifically for division-by-zero validation."""
+    """Return validation errors in a consistent format."""
 
     logger.error(
         "Validation error on %s: %s",
@@ -128,14 +129,18 @@ async def validation_exception_handler(
     errors = exc.errors()
 
     division_by_zero = any(
-        "divide by zero" in str(error.get("msg", "")).lower()
+        "divide by zero" in str(
+            error.get("msg", "")
+        ).lower()
         for error in errors
     )
 
     if division_by_zero:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content={"detail": "Cannot divide by zero."},
+            content={
+                "detail": "Cannot divide by zero."
+            },
         )
 
     return JSONResponse(
@@ -144,7 +149,10 @@ async def validation_exception_handler(
     )
 
 
-@app.get("/")
+@app.get(
+    "/",
+    response_class=HTMLResponse,
+)
 async def read_root(request: Request):
     """Display the calculator page."""
 
@@ -155,7 +163,10 @@ async def read_root(request: Request):
     )
 
 
-@app.get("/register")
+@app.get(
+    "/register",
+    response_class=HTMLResponse,
+)
 async def register_page(request: Request):
     """Display the user registration page."""
 
@@ -166,13 +177,30 @@ async def register_page(request: Request):
     )
 
 
-@app.get("/login")
+@app.get(
+    "/login",
+    response_class=HTMLResponse,
+)
 async def login_page(request: Request):
     """Display the user login page."""
 
     return templates.TemplateResponse(
         request=request,
         name="login.html",
+        context={},
+    )
+
+
+@app.get(
+    "/dashboard",
+    response_class=HTMLResponse,
+)
+async def reports_page(request: Request):
+    """Display the authenticated calculation report dashboard."""
+
+    return templates.TemplateResponse(
+        request=request,
+        name="reports.html",
         context={},
     )
 
@@ -187,7 +215,9 @@ def health_check() -> dict[str, str]:
 @app.post(
     "/add",
     response_model=OperationResponse,
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        400: {"model": ErrorResponse}
+    },
 )
 async def add_route(
     operation: OperationRequest,
@@ -195,11 +225,20 @@ async def add_route(
     """Add two numbers."""
 
     try:
-        result = add(operation.a, operation.b)
-        return OperationResponse(result=result)
+        result = add(
+            operation.a,
+            operation.b,
+        )
+
+        return OperationResponse(
+            result=result
+        )
 
     except Exception as error:
-        logger.error("Add operation error: %s", error)
+        logger.error(
+            "Add operation error: %s",
+            error,
+        )
 
         raise HTTPException(
             status_code=400,
@@ -210,7 +249,9 @@ async def add_route(
 @app.post(
     "/subtract",
     response_model=OperationResponse,
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        400: {"model": ErrorResponse}
+    },
 )
 async def subtract_route(
     operation: OperationRequest,
@@ -218,11 +259,20 @@ async def subtract_route(
     """Subtract the second number from the first."""
 
     try:
-        result = subtract(operation.a, operation.b)
-        return OperationResponse(result=result)
+        result = subtract(
+            operation.a,
+            operation.b,
+        )
+
+        return OperationResponse(
+            result=result
+        )
 
     except Exception as error:
-        logger.error("Subtract operation error: %s", error)
+        logger.error(
+            "Subtract operation error: %s",
+            error,
+        )
 
         raise HTTPException(
             status_code=400,
@@ -233,7 +283,9 @@ async def subtract_route(
 @app.post(
     "/multiply",
     response_model=OperationResponse,
-    responses={400: {"model": ErrorResponse}},
+    responses={
+        400: {"model": ErrorResponse}
+    },
 )
 async def multiply_route(
     operation: OperationRequest,
@@ -241,11 +293,20 @@ async def multiply_route(
     """Multiply two numbers."""
 
     try:
-        result = multiply(operation.a, operation.b)
-        return OperationResponse(result=result)
+        result = multiply(
+            operation.a,
+            operation.b,
+        )
+
+        return OperationResponse(
+            result=result
+        )
 
     except Exception as error:
-        logger.error("Multiply operation error: %s", error)
+        logger.error(
+            "Multiply operation error: %s",
+            error,
+        )
 
         raise HTTPException(
             status_code=400,
@@ -267,11 +328,20 @@ async def divide_route(
     """Divide the first number by the second."""
 
     try:
-        result = divide(operation.a, operation.b)
-        return OperationResponse(result=result)
+        result = divide(
+            operation.a,
+            operation.b,
+        )
+
+        return OperationResponse(
+            result=result
+        )
 
     except ValueError as error:
-        logger.error("Divide operation error: %s", error)
+        logger.error(
+            "Divide operation error: %s",
+            error,
+        )
 
         raise HTTPException(
             status_code=400,

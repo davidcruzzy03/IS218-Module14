@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Calculation Report</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/css/styles.css"
+    >
+</head>
+
+<body>
+    <header>
+        <h1>Calculation Report</h1>
+
+        <nav>
+            <a href="/">Calculator</a>
+            <a href="/dashboard">Reports</a>
+
+            <button
+                id="logout-button"
+                type="button"
+            >
+                Log Out
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="report-summary">
+            <h2>Summary</h2>
+
+            <p>
+                Total calculations:
+                <span id="total-calculations">0</span>
+            </p>
+
+            <p>
+                Average first operand:
+                <span id="average-a">N/A</span>
+            </p>
+
+            <p>
+                Average second operand:
+                <span id="average-b">N/A</span>
+            </p>
+
+            <p>
+                Most-used operation:
+                <span id="most-used-operation">N/A</span>
+            </p>
+        </section>
+
+        <section>
+            <h2>Operation Counts</h2>
+
+            <ul id="operation-counts">
+                <li>No calculations yet.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Calculation History</h2>
+
+            <label for="operation-filter">
+                Filter by operation
+            </label>
+
+            <select id="operation-filter">
+                <option value="all">
+                    All operations
+                </option>
+
+                <option value="addition">
+                    Addition
+                </option>
+
+                <option value="subtraction">
+                    Subtraction
+                </option>
+
+                <option value="multiplication">
+                    Multiplication
+                </option>
+
+                <option value="division">
+                    Division
+                </option>
+            </select>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Operation</th>
+                        <th>First Operand</th>
+                        <th>Second Operand</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+
+                <tbody id="history-table-body">
+                    <tr>
+                        <td colspan="4">
+                            Loading calculation history...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <button
+                id="clear-history-button"
+                type="button"
+            >
+                Clear History
+            </button>
+
+            <p
+                id="report-message"
+                role="alert"
+                aria-live="polite"
+            ></p>
+        </section>
+    </main>
+
+    <script src="/static/js/reports.js"></script>
+</body>
+</html>
