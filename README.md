@@ -1,10 +1,21 @@
-# IS218 Module 14 - FastAPI Calculator with JWT Authentication and BREAD Operations
+# IS218 Final Project - FastAPI Calculator with JWT Authentication, BREAD Operations, and Report Dashboard
 
 ## Overview
 
-This project is the Module 14 assignment for IS218. It extends the Module 13 JWT Authentication project by implementing complete BREAD (Browse, Read, Edit, Add, Delete) functionality for user calculations.
+This project is the Final Project for IS218 Web Systems Development.
 
-Users can securely register and log in using JWT authentication, then create, browse, edit, view, and delete their own calculations through both the API and frontend.
+It extends the previous FastAPI Calculator by implementing secure JWT authentication, complete BREAD (Browse, Read, Edit, Add, Delete) operations for calculations, and a new authenticated Report Dashboard.
+
+Users can:
+
+- Register and log in securely
+- Perform calculator operations
+- Browse, read, edit, add, and delete their calculations
+- View personalized reports and statistics
+- Filter calculation history
+- Clear calculation history
+
+The application includes automated unit, integration, and Playwright end-to-end testing, Docker deployment, PostgreSQL integration, and GitHub Actions CI/CD.
 
 ---
 
@@ -16,13 +27,14 @@ Users can securely register and log in using JWT authentication, then create, br
 - User Login
 - Password hashing using bcrypt
 - JWT Access Token generation
-- JWT token validation
+- JWT validation
 - Duplicate username/email validation
-- Protected calculation endpoints
+- Protected API endpoints
+- User ownership verification
 
 ---
 
-## Calculation BREAD Operations
+## Calculation Management (BREAD)
 
 ### Browse
 
@@ -30,21 +42,22 @@ Users can securely register and log in using JWT authentication, then create, br
 
 ### Read
 
-- View a single calculation by ID
+- View a single saved calculation
 
 ### Add
 
-- Create new calculations
-- Supported operations:
-  - Add
-  - Subtract
-  - Multiply
-  - Divide
+Create calculations using:
+
+- Add
+- Subtract
+- Multiply
+- Divide
 
 ### Edit
 
-- Update operands or operation type
-- Automatically recalculates the result
+- Update operands
+- Update operation type
+- Automatically recalculate results
 
 ### Delete
 
@@ -52,25 +65,44 @@ Users can securely register and log in using JWT authentication, then create, br
 
 ---
 
+## Report Dashboard
+
+Authenticated users can access a dashboard that displays:
+
+- Total calculations
+- Average first operand
+- Average second operand
+- Most frequently used operation
+- Operation counts
+- Complete calculation history
+- Filter history by operation
+- Clear calculation history
+
+All reports are user-specific and protected using JWT authentication.
+
+---
+
 ## Frontend
 
 - Home page
-- Registration page
+- Register page
 - Login page
 - Calculator page
+- Report Dashboard
 - Client-side validation
-- JWT stored in Local Storage
-- Authenticated calculation management
+- JWT stored in browser Local Storage
+- History filtering
+- History clearing
 
 ---
 
 ## Security
 
-- Password hashing using bcrypt
-- JWT authentication
+- Password hashing with bcrypt
+- JWT Authentication
+- Protected routes
 - User ownership verification
-- Protected calculation routes
-- Invalid login handling
+- Input validation
 - Duplicate account protection
 
 ---
@@ -80,7 +112,13 @@ Users can securely register and log in using JWT authentication, then create, br
 - Unit Tests
 - Integration Tests
 - Playwright End-to-End Tests
+- Report Dashboard Tests
 - Coverage Reports
+
+### Final Results
+
+- **85 Tests Passed**
+- **92% Code Coverage**
 
 ---
 
@@ -107,29 +145,32 @@ Users can securely register and log in using JWT authentication, then create, br
 - HTML
 - CSS
 - JavaScript
-- Docker
-- Docker Compose
 - Playwright
 - Pytest
+- Docker
+- Docker Compose
 - GitHub Actions
 
 ---
 
 # Project Structure
 
-```
+```text
 IS218-Module14/
 
 ├── app/
+│   ├── core/
 │   ├── models/
+│   ├── operations/
 │   ├── routers/
 │   ├── schemas/
 │   ├── services/
-│   ├── operations/
-│   ├── security.py
-│   └── database.py
+│   ├── database.py
+│   └── security.py
 │
 ├── static/
+│   ├── css/
+│   └── js/
 │
 ├── templates/
 │
@@ -154,7 +195,7 @@ IS218-Module14/
 Clone the repository
 
 ```bash
-git clone git@github.com:davidcruzzy03/IS218-Module14.git
+git clone https://github.com/davidcruzzy03/IS218-Module14.git
 ```
 
 Enter the project
@@ -169,7 +210,7 @@ Create a virtual environment
 python3 -m venv .venv
 ```
 
-Activate it
+Activate the environment
 
 Linux/macOS
 
@@ -211,7 +252,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 # Running with Docker
 
-Build the application
+Build and start the application
 
 ```bash
 docker compose up -d --build
@@ -251,6 +292,12 @@ Login
 http://localhost:8000/login
 ```
 
+Report Dashboard
+
+```
+http://localhost:8000/dashboard
+```
+
 Swagger Documentation
 
 ```
@@ -285,31 +332,16 @@ Run Playwright tests
 python -m pytest tests/e2e -v
 ```
 
-Generate coverage
+Run coverage
 
 ```bash
-pytest --cov=app --cov=main
+python -m pytest \
+tests/unit \
+tests/integration \
+tests/e2e \
+--cov=app \
+--cov-report=term-missing
 ```
-
-Current Results
-
-```
-68+ Tests Passing
-
-90%+ Coverage
-```
-
----
-
-# Authentication Flow
-
-1. Register a new account
-2. Password is securely hashed
-3. Login using username and password
-4. JWT access token is created
-5. JWT stored in browser Local Storage
-6. Authenticated requests include the token
-7. Users may only access their own calculations
 
 ---
 
@@ -329,10 +361,20 @@ Current Results
 | Method | Endpoint | Description |
 |---------|----------|-------------|
 | GET | /calculations | Browse calculations |
-| GET | /calculations/{id} | Read one calculation |
+| GET | /calculations/{id} | Read calculation |
 | POST | /calculations | Add calculation |
 | PUT | /calculations/{id} | Edit calculation |
 | DELETE | /calculations/{id} | Delete calculation |
+
+---
+
+## Report Routes
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | /reports/history | View user calculation history |
+| GET | /reports/summary | View calculation statistics |
+| DELETE | /reports/history | Clear user calculation history |
 
 ---
 
@@ -342,7 +384,7 @@ GitHub Actions automatically:
 
 - Runs Unit Tests
 - Runs Integration Tests
-- Runs Playwright Tests
+- Runs Playwright E2E Tests
 - Generates Coverage Reports
 - Builds Docker Image
 - Runs Security Scan
@@ -352,34 +394,31 @@ GitHub Actions automatically:
 
 # Docker Hub
 
-Docker Hub Repository
-
-```
 https://hub.docker.com/r/davidcruzzy03/is218-module14
-```
 
 ---
 
 # GitHub Repository
 
-```
 https://github.com/davidcruzzy03/IS218-Module14
-```
 
 ---
 
 # Learning Outcomes
 
-This module expanded my understanding of:
+This project strengthened my understanding of:
 
 - JWT Authentication
+- Password Hashing
 - User Authorization
-- Secure Password Storage
-- RESTful API Design
+- REST API Development
+- FastAPI
+- SQLAlchemy
+- PostgreSQL
 - BREAD Operations
-- User Ownership Verification
+- Report Dashboard Development
 - Playwright End-to-End Testing
-- Docker Deployment
+- Docker
 - GitHub Actions CI/CD
 - Secure Full-Stack Development
 
@@ -391,6 +430,6 @@ This module expanded my understanding of:
 
 IS218 – Web Systems Development
 
-GitHub
+GitHub:
 
 https://github.com/davidcruzzy03
