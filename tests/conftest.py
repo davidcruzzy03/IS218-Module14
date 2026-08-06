@@ -63,7 +63,7 @@ def db_session(engine):
 
 @pytest.fixture()
 def test_user(db_session):
-    """Create a database user for calculation tests."""
+    """Create a database user for authenticated tests."""
 
     unique_value = uuid.uuid4().hex[:8]
 
@@ -85,7 +85,10 @@ def client(db_session, test_user):
     """Provide an authenticated FastAPI test client."""
 
     def override_get_db():
-        yield db_session
+        try:
+            yield db_session
+        finally:
+            pass
 
     def override_get_current_user():
         return test_user
@@ -94,6 +97,25 @@ def client(db_session, test_user):
     app.dependency_overrides[get_current_user] = (
         override_get_current_user
     )
+
+    with TestClient(app) as test_client:
+        yield test_client
+
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def unauthenticated_client(db_session):
+    """Provide a FastAPI test client without authentication."""
+
+    def override_get_db():
+        try:
+            yield db_session
+        finally:
+            pass
+
+    app.dependency_overrides.clear()
+    app.dependency_overrides[get_db] = override_get_db
 
     with TestClient(app) as test_client:
         yield test_client

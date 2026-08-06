@@ -1,22 +1,57 @@
-# app/services/report_service.py
+"""Service functions for calculation reports."""
 
 from collections import Counter
-from typing import Iterable, Optional
+from typing import Iterable
 
 from app.models.calculation import Calculation
 
 
+def get_operation_name(calculation: Calculation) -> str:
+    """
+    Return a normalized operation name regardless of how the
+    operation is stored (enum, string, etc.).
+    """
+
+    operation = calculation.type
+
+    # Handle Enum values
+    if hasattr(operation, "value"):
+        operation = operation.value
+
+    operation_name = str(operation).lower()
+
+    # Handle values like "CalculationType.ADDITION"
+    if "." in operation_name:
+        operation_name = operation_name.split(".")[-1]
+
+    # Normalize names
+    mapping = {
+        "add": "addition",
+        "addition": "addition",
+
+        "subtract": "subtraction",
+        "subtraction": "subtraction",
+
+        "multiply": "multiplication",
+        "multiplication": "multiplication",
+
+        "divide": "division",
+        "division": "division",
+    }
+
+    return mapping.get(operation_name, operation_name)
+
+
 def build_report_summary(
     calculations: Iterable[Calculation],
-) -> dict:
+):
     """
-    Build summary statistics from a user's calculations.
-
-    Returns safe defaults when the user has no calculations.
+    Build summary statistics for a user's calculations.
     """
 
-    calculation_list = list(calculations)
-    total = len(calculation_list)
+    calculations = list(calculations)
+
+    total = len(calculations)
 
     if total == 0:
         return {
@@ -28,21 +63,24 @@ def build_report_summary(
         }
 
     operation_counts = Counter(
-        str(calculation.type.value)
-        if hasattr(calculation.type, "value")
-        else str(calculation.type)
-        for calculation in calculation_list
+        get_operation_name(calculation)
+        for calculation in calculations
     )
 
-    average_a = sum(float(item.a) for item in calculation_list) / total
-    average_b = sum(float(item.b) for item in calculation_list) / total
+    average_a = round(
+        sum(float(c.a) for c in calculations) / total,
+        2,
+    )
 
-    most_used_operation: Optional[str] = operation_counts.most_common(1)[0][0]
+    average_b = round(
+        sum(float(c.b) for c in calculations) / total,
+        2,
+    )
 
     return {
         "total_calculations": total,
-        "average_a": round(average_a, 2),
-        "average_b": round(average_b, 2),
+        "average_a": average_a,
+        "average_b": average_b,
         "operation_counts": dict(operation_counts),
-        "most_used_operation": most_used_operation,
+        "most_used_operation": operation_counts.most_common(1)[0][0],
     }
