@@ -1,0 +1,45 @@
+<h1>Calculation Report</h1>
+
+<section id="report-summary">
+    <p>Total calculations: <span id="total-calculations">0</span></p>
+    <p>Average first operand: <span id="average-a">N/A</span></p>
+    <p>Average second operand: <span id="average-b">N/A</span></p>
+    <p>Most-used operation: <span id="most-used-operation">N/A</span></p>
+</section>
+
+<section>
+    <h2>Operation Counts</h2>
+    <ul id="operation-counts"></ul>
+</section>
+
+<section>
+    <h2>Calculation History</h2>
+
+    <select id="operation-filter">
+        <option value="all">All operations</option>
+        <option value="addition">Addition</option>
+        <option value="subtraction">Subtraction</option>
+        <option value="multiplication">Multiplication</option>
+        <option value="division">Division</option>
+    </select>   
+
+    <table>
+        <thead>
+            <tr>
+                <th>Operation</th>
+                <th>First Operand</th>
+                <th>Second Operand</th>
+                <th>Result</th>
+            </tr>
+        </thead>
+        <tbody id="history-table-body"></tbody>
+    </table>
+</section>
+
+<p id="report-message" role="alert"></p>
+
+<button id="clear-history-button" type="button">
+    Clear History
+</button>
+
+<script src="/static/reports.js"></script>
